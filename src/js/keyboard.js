@@ -90,7 +90,8 @@
                 showLanguageKey = true,
                 showAltKey = true,
                 showSpareKey = true,
-                loadExternalKeyboardFiles = false
+                loadExternalKeyboardFiles = false,
+                boldKeyWritings = true
             }) => ({
                 acceptColor,
                 acceptTextColor,
@@ -125,7 +126,8 @@
                 showLanguageKey,
                 showAltKey,
                 showSpareKey,
-                loadExternalKeyboardFiles
+                loadExternalKeyboardFiles,
+                boldKeyWritings
             });
 
             const options = initOptions(passedOptions);
@@ -658,6 +660,11 @@
                     const keyboardActionWrapper = document.createElement('div');
                     keyboardActionWrapper.className = 'keyboard-action-wrapper';
                     keyboardActionWrapper.innerHTML = '<button class="keyboard-action-button keyboard-cancel-button">Cancel</button><input type="text" class="keyboard-input-field"><button class="keyboard-action-button keyboard-accept-button">Accept</button>';
+                    if (options.boldKeyWritings) {
+                        for (const child of keyboardActionWrapper.children) {
+                            child.style.fontWeight = 'bold';
+                        }
+                    }
                     keyboardWrapper.insertBefore(keyboardActionWrapper, keyboardWrapper.firstChild);
                 }
 
@@ -1009,6 +1016,9 @@
                             keyboardKeys[prop].style.color = options.languageKeyTextColor;
                         } else {
                             keyboardKeys[prop].style.color = options.keyTextColor;
+                        }
+                        if (options.boldKeyWritings) {
+                            keyboardKeys[prop].style.fontWeight = 'bold';
                         }
                     } catch (error) {
                         // In case 'prop' === 'entries' and such...
