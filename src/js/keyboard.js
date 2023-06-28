@@ -82,7 +82,15 @@
                 showSelectedLanguage = false,
                 spareKey = '',
                 specifiedFieldsOnly = false,
-                tabKey = ''
+                tabKey = '',
+                showTabKey = true,
+                showCapsLockKey = true,
+                showEnterKey = true,
+                showCtrlKey = true,
+                showLanguageKey = true,
+                showAltKey = true,
+                showSpareKey = true,
+                loadExternalKeyboardFiles = false
             }) => ({
                 acceptColor,
                 acceptTextColor,
@@ -109,7 +117,15 @@
                 showSelectedLanguage,
                 spareKey,
                 specifiedFieldsOnly,
-                tabKey
+                tabKey,
+                showTabKey,
+                showCapsLockKey,
+                showEnterKey,
+                showCtrlKey,
+                showLanguageKey,
+                showAltKey,
+                showSpareKey,
+                loadExternalKeyboardFiles
             });
 
             const options = initOptions(passedOptions);
@@ -284,7 +300,7 @@
                             while (elementLayer.parentNode && !elementLayer.classList.contains('keyboard-wrapper')) {
                                 elementLayer = elementLayer.parentNode;
                             }
-                            if (!elementLayer.classList.contains('keyboard-wrapper')) {
+                            if (elementLayer === document || !elementLayer.classList.contains('keyboard-wrapper')) {
                                 clearKeyboardState();
                                 keyboardOpen = false;
                                 readKeyboardFile();
@@ -355,7 +371,7 @@
                     };
 
                     // See if there is a local language file, otherwise default to CDN.
-                    fetch(`./languages/${file}.klc`)
+                    fetch(`${getRelativeFilePath(__filename)}/../../languages/${file}.klc`)
                         .then((response) => {
                             if (response.ok) {
                                 return response.text();
@@ -368,20 +384,24 @@
                         })
                         .catch(() => {
                             // No local languages, try the CDN.
-                            fetch(`${CDN_LANGUAGES_DIRECTORY}/${file}.klc`)
-                                .then((response) => {
-                                    if (response.ok) {
-                                        return response.text();
-                                    } else {
-                                        throw new Error('Language file not found');
-                                    }
-                                })
-                                .then((data) => {
-                                    handleSuccess(data);
-                                })
-                                .catch((error) => {
-                                    console.error(error);
-                                });
+                            if (options.loadExternalKeyboardFiles) {
+                                fetch(`${CDN_LANGUAGES_DIRECTORY}/${file}.klc`)
+                                    .then((response) => {
+                                        if (response.ok) {
+                                            return response.text();
+                                        } else {
+                                            throw new Error('Language file not found');
+                                        }
+                                    })
+                                    .then((data) => {
+                                        handleSuccess(data);
+                                    })
+                                    .catch((error) => {
+                                        console.error(error);
+                                    });
+                            } else {
+                                throw new Error('Language file not found');
+                            }
                         });
                 }
             }
@@ -641,28 +661,58 @@
                     keyboardWrapper.insertBefore(keyboardActionWrapper, keyboardWrapper.firstChild);
                 }
 
-                const keyboardRows = document.querySelectorAll('.keyboard-row');
 
+                const keyboardRows = document.querySelectorAll('.keyboard-row');
                 keyboardRows[0].insertAdjacentHTML('beforeend', '<button class="keyboard-key keyboard-key-lg" data-keyval="backspace">Backspace</button>');
-                keyboardRows[1].insertAdjacentHTML('afterbegin', '<button class="keyboard-key keyboard-key-lg" data-keyval="tab">Tab</button>');
+
+                if (options.showTabKey) {
+                    keyboardRows[1].insertAdjacentHTML('afterbegin', '<button class="keyboard-key keyboard-key-lg" data-keyval="tab">Tab</button>');
+                } else {
+                    keyboardRows[1].insertAdjacentHTML('afterbegin', '<button class="keyboard-key keyboard-key-sm" data-keyval="" style="opacity: 0.0; cursor: default;"></button>');
+                }
                 keyboardRows[2].insertAdjacentHTML('afterbegin', `<button class="keyboard-key keyboard-key-lg caps-lock-key ${options.isPermanentUppercase ? 'caps-lock-key-active' : ''}" data-keyval="caps lock">Caps Lock</button>`);
-                keyboardRows[2].insertAdjacentHTML('beforeend', '<button class="keyboard-key keyboard-key-lg" data-keyval="enter">Enter</button>');
+                if (options.showEnterKey) {
+                    keyboardRows[2].insertAdjacentHTML('beforeend', '<button class="keyboard-key keyboard-key-lg" data-keyval="enter">Enter</button>');
+                } else {
+                    keyboardRows[2].insertAdjacentHTML('beforeend', '<button class="keyboard-key keyboard-key-lg" data-keyval="" style="opacity: 0.0; cursor: default;"></button>');
+                }
                 keyboardRows[3].insertAdjacentHTML('afterbegin', '<button class="keyboard-key keyboard-key-lg" data-keyval="shift">Shift</button>');
                 keyboardRows[3].insertAdjacentHTML('beforeend', '<button class="keyboard-key keyboard-key-lg" data-keyval="shift">Shift</button>');
 
+
                 const newKeyboardRow = document.createElement('div');
                 newKeyboardRow.className = 'keyboard-row';
-
-                newKeyboardRow.insertAdjacentHTML('beforeend', '<button class="keyboard-key keyboard-key-lg" data-keyval="ctrl">Ctrl</button>');
-                newKeyboardRow.insertAdjacentHTML('beforeend', `<button class="keyboard-key keyboard-key-lg language-button" data-keyval="language">
-    <span style="color: ${languageKeyTextColor};" data-keyval="language">${languageButtonText}</span>
-  </button>`);
-                newKeyboardRow.insertAdjacentHTML('beforeend', '<button class="keyboard-key keyboard-key-lg" data-keyval="alt">Alt</button>');
+                if (options.showCtrlKey) {
+                    newKeyboardRow.insertAdjacentHTML('beforeend', '<button class="keyboard-key keyboard-key-lg" data-keyval="ctrl">Ctrl</button>');
+                } else {
+                    newKeyboardRow.insertAdjacentHTML('beforeend', '<button class="keyboard-key keyboard-key-lg" data-keyval="" style="opacity: 0.0; cursor: default;"></button>');
+                }
+                if (options.showLanguageKey) {
+                    newKeyboardRow.insertAdjacentHTML('beforeend', `<button class="keyboard-key keyboard-key-lg language-button" data-keyval="language">${languageButtonText}</button>`);
+                } else {
+                    newKeyboardRow.insertAdjacentHTML('beforeend', `<button class="keyboard-key keyboard-key-lg language-button" data-keyval="" style="opacity: 0.0; cursor: default;"></button>`);
+                }
+                if (options.showAltKey) {
+                    newKeyboardRow.insertAdjacentHTML('beforeend', '<button class="keyboard-key keyboard-key-lg" data-keyval="alt">Alt</button>');
+                } else {
+                    newKeyboardRow.insertAdjacentHTML('beforeend', '<button class="keyboard-key keyboard-key-lg" data-keyval="" style="opacity: 0.0; cursor: default;></button>');
+                }
                 newKeyboardRow.insertAdjacentHTML('beforeend', '<button class="keyboard-key keyboard-key-xl" data-keyval="space">&nbsp;</button>');
-                newKeyboardRow.insertAdjacentHTML('beforeend', '<button class="keyboard-key keyboard-key-lg" data-keyval="alt grp">Alt Grp</button>');
-                newKeyboardRow.insertAdjacentHTML('beforeend', '<button class="keyboard-key keyboard-key-lg" data-keyval="spare">&nbsp;</button>');
-                newKeyboardRow.insertAdjacentHTML('beforeend', '<button class="keyboard-key keyboard-key-lg" data-keyval="ctrl">Ctrl</button>');
-
+                if (options.showAltKey) {
+                    newKeyboardRow.insertAdjacentHTML('beforeend', '<button class="keyboard-key keyboard-key-lg" data-keyval="alt grp">Alt Grp</button>');
+                } else {
+                    newKeyboardRow.insertAdjacentHTML('beforeend', '<button class="keyboard-key keyboard-key-lg" data-keyval="" style="opacity: 0.0; cursor: default;></button>');
+                }
+                if (options.showSpareKey) {
+                    newKeyboardRow.insertAdjacentHTML('beforeend', '<button class="keyboard-key keyboard-key-lg" data-keyval="spare">&nbsp;</button>');
+                } else {
+                    newKeyboardRow.insertAdjacentHTML('beforeend', '<button class="keyboard-key keyboard-key-lg" data-keyval="" style="opacity: 0.0; cursor: default;"></button>');
+                }
+                if (options.showCtrlKey) {
+                    newKeyboardRow.insertAdjacentHTML('beforeend', '<button class="keyboard-key keyboard-key-lg" data-keyval="ctrl">Ctrl</button>');
+                } else {
+                    newKeyboardRow.insertAdjacentHTML('beforeend', '<button class="keyboard-key keyboard-key-lg" data-keyval="" style="opacity: 0.0; cursor: default;"></button>');
+                }
                 document.querySelector('.keyboard-wrapper').appendChild(newKeyboardRow);
             }
 
@@ -859,7 +909,7 @@
                             }
                             break;
                         case 'language':
-                            if (languageArrayPosition + 1 <= options.language.length - 1) {
+                            if (languageArrayPosition < options.language.length - 1) {
                                 languageArrayPosition++;
                             } else {
                                 languageArrayPosition = 0;
@@ -955,7 +1005,11 @@
                 for (prop in keyboardKeys) {
                     try {
                         keyboardKeys[prop].style.backgroundColor = options.keyColor;
-                        keyboardKeys[prop].style.color = options.keyTextColor;
+                        if ('language' === keyboardKeys[prop].dataset.keyval) {
+                            keyboardKeys[prop].style.color = options.languageKeyTextColor;
+                        } else {
+                            keyboardKeys[prop].style.color = options.keyTextColor;
+                        }
                     } catch (error) {
                         // In case 'prop' === 'entries' and such...
                     }
