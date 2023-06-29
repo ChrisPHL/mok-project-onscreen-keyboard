@@ -91,7 +91,10 @@
                 showAltKey = true,
                 showSpareKey = true,
                 loadExternalKeyboardFiles = false,
-                boldKeyWritings = true
+                boldKeyWritings = true,
+                acceptKeyWriting = 'Accept',
+                cancelKeyWriting = 'Accept'
+
             }) => ({
                 acceptColor,
                 acceptTextColor,
@@ -127,7 +130,9 @@
                 showAltKey,
                 showSpareKey,
                 loadExternalKeyboardFiles,
-                boldKeyWritings
+                boldKeyWritings,
+                acceptKeyWriting,
+                cancelKeyWriting
             });
 
             const options = initOptions(passedOptions);
@@ -659,7 +664,7 @@
                     const keyboardWrapper = document.querySelector('.keyboard-wrapper');
                     const keyboardActionWrapper = document.createElement('div');
                     keyboardActionWrapper.className = 'keyboard-action-wrapper';
-                    keyboardActionWrapper.innerHTML = '<button class="keyboard-action-button keyboard-cancel-button">Cancel</button><input type="text" class="keyboard-input-field"><button class="keyboard-action-button keyboard-accept-button">Accept</button>';
+                    keyboardActionWrapper.innerHTML = `<button class="keyboard-action-button keyboard-cancel-button">${options.cancelKeyWriting}</button><input type="text" class="keyboard-input-field"><button class="keyboard-action-button keyboard-accept-button">${options.acceptKeyWriting}</button>`;
                     if (options.boldKeyWritings) {
                         for (const child of keyboardActionWrapper.children) {
                             child.style.fontWeight = 'bold';
