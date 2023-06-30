@@ -50,6 +50,8 @@
 
             const CDN_LANGUAGES_DIRECTORY = `https://cdn.jsdelivr.net/npm/mok-project@${KEYBOARD_VERSION}/dist/languages`;
 
+            const LOCALE_VALIDATION_REGEX = '^[a-z]{2,3}(?:-[A-Z][a-z]{2,3})?(?:-[A-Z]{2,3})$'
+
             const getLocale = () => {
                 if (window.Intl) {
                     let locale = window.navigator.language || window.navigator.userLanguage
@@ -97,14 +99,28 @@
             const constructLanguageList = (language) => {
                 language = language.split(',').map(splitLanguage => splitLanguage.trim())
 
+                // Replace all LOCALE like language variables with their file name pendant:
+                for (let prop in language) {
+                    lang = language[prop]
+                    if (lang.split(':')[0].match(LOCALE_VALIDATION_REGEX)) {
+                        lang = language.splice(prop, 1)[0]
+                        try {
+                            lang = getLanguageFileByLocale(lang.split(':')[0]).split('.klc')[0] + ':' + lang.split(':')[1]
+                        } catch (error) {
+                            // Do not alter the entry and push it back.
+                        }
+                        language.splice(prop, 1, lang)
+                    }
+                }
+
                 try {
                     const defaultLanguage = getLanguageFileByLocale(getLocale()).split('.')[0]
                     // Find the index of the default language
                     let defaultIndex = language.findIndex(lang => lang.startsWith(defaultLanguage + ':'))
                     // Move the default language to the first slot if it exists
                     if (defaultIndex !== -1) {
-                        let defaultLang = language.splice(defaultIndex, 1)[0];
-                        language.unshift(defaultLang);
+                        let defaultLang = language.splice(defaultIndex, 1)[0]
+                        language.unshift(defaultLang)
                     }
                 } catch (error) {
                     // In case of an error we're simply not able to find the default language...
