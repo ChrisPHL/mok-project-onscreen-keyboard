@@ -50,10 +50,71 @@
 
             const CDN_LANGUAGES_DIRECTORY = `https://cdn.jsdelivr.net/npm/mok-project@${KEYBOARD_VERSION}/dist/languages`;
 
+            const getLocale = () => {
+                if (window.Intl) {
+                    let locale = window.navigator.language || window.navigator.userLanguage
+                    let languageCode = locale.split("-")[0]
+                    let countryCode = locale.split("-")[1]
+                    let formattedLocale = languageCode
+                    if (countryCode) {
+                        formattedLocale += "-" + countryCode.toUpperCase()
+                    } else {
+                        formattedLocale += "-" + languageCode.toUpperCase()
+                    }
+                    return formattedLocale
+                } else {
+                    console.log('Internationalization API not supported.')
+                    return null
+                }
+            }
+
+            const getLanguageFileByLocale = (locale) => {
+                const fs = require('fs')
+                const path = require('path')
+
+                const directoryPath = `${getRelativeFilePath(__filename)}/../../languages/`
+                const files = fs.readdirSync(directoryPath)
+
+                for (let prop in files) {
+                    const file = files[prop]
+                    const filePath = path.join(directoryPath, file)
+                    const fileExtension = path.extname(file);
+
+                    if (fileExtension === '.klc') {
+                        const fileContents = fs.readFileSync(filePath, 'utf-16le')
+                        const match = fileContents.match(new RegExp(`LOCALENAME\\s+"${locale}"`))
+
+                        if (match) {
+                            console.log('File found:', file)
+                            return file
+                        }
+                    }
+                };
+                return null
+            }
+
             // Build out our language list from input string.
-            const constructLanguageList = (language) =>
-                language.split(',').map(splitLanguage =>
-                    splitLanguage.trim());
+            const constructLanguageList = (language) => {
+                language = language.split(',').map(splitLanguage => splitLanguage.trim())
+
+                try {
+                    const defaultLanguage = getLanguageFileByLocale(getLocale()).split('.')[0]
+                    // Find the index of the default language
+                    let defaultIndex = language.findIndex(lang => lang.startsWith(defaultLanguage + ':'))
+                    // Move the default language to the first slot if it exists
+                    if (defaultIndex !== -1) {
+                        let defaultLang = language.splice(defaultIndex, 1)[0];
+                        language.unshift(defaultLang);
+                    }
+                } catch (error) {
+                    // In case of an error we're simply not able to find the default language...
+                }
+                return language
+            }
+
+            const hideLanguageKeyOnSingleItemLanguageList = (showLanguageKey, language) => {
+                return language.match(/,/g) === null ? false : showLanguageKey
+            }
 
             // Define our default options.
             const initOptions = ({
@@ -76,7 +137,7 @@
                 keyColor = '#E0E0E0',
                 keyTextColor = '#555555',
                 keyboardPosition = 'bottom',
-                language = '',
+                language = getLanguageFileByLocale(getLocale()).split('.')[0],
                 languageKey = '',
                 languageKeyTextColor = '#3498db',
                 showSelectedLanguage = false,
@@ -93,8 +154,7 @@
                 loadExternalKeyboardFiles = false,
                 boldKeyWritings = true,
                 acceptKeyWriting = 'Accept',
-                cancelKeyWriting = 'Accept'
-
+                cancelKeyWriting = 'Cancel'
             }) => ({
                 acceptColor,
                 acceptTextColor,
@@ -126,7 +186,7 @@
                 showCapsLockKey,
                 showEnterKey,
                 showCtrlKey,
-                showLanguageKey,
+                showLanguageKey: hideLanguageKeyOnSingleItemLanguageList(showLanguageKey, language),
                 showAltKey,
                 showSpareKey,
                 loadExternalKeyboardFiles,
