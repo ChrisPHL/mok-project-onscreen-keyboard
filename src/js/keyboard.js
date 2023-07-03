@@ -3,8 +3,10 @@
 //*            MOK Project - Multilingual Onscreen Keyboard                         *
 //*                                                                                 *
 //*            Author: Sean McQuay (www.seanmcquay.com)                             *
+//*            De-jQuery-fied by: Christian Pohl (www.chpohl.de)                    *
 //*                                                                                 *
-//*            GitHub: https://github.com/srm985/mok-project                        *
+//*            GitHub: https://github.com/ChrisPHL/mok-project-onscreen-keyboard    *
+//*            Fork of: https://github.com/srm985/mok-prject                        *
 //*                                                                                 *
 //*            Started: March 2017                                                  *
 //*            Version: 1.1.7                                                       *
@@ -14,6 +16,41 @@
 //***********************************************************************************
 (function (document) {
     document.addEventListener('DOMContentLoaded', function () {
+
+        function getCurrentScriptPath(relative) {
+            if (!(typeof relative === 'boolean')) {
+                throw new Error('Argument missmatch')
+            }
+
+            let error = new Error();
+            let stack = error.stack;
+
+            if (stack) {
+                let stackLines = stack.split('\n');
+                for (let i = 0; i < stackLines.length; i++) {
+                    let line = stackLines[i]
+                    let matches = line.match(/(?:file:\/{1,3}|[a-zA-Z]:[\\/]|https?:\/\/)[^\s]+/)
+                    if (matches) {
+                        let filePath = matches[0]
+                        // Filter out line and column values if present
+                        filePath = filePath.replace(/:\d+:\d+\)$/, '')
+                        if (!relative) {
+                            return filePath
+                        } else {
+                            let pathArray = window.location.pathname.split('/')
+                            pathArray = pathArray.filter(value => value !== '')
+                            pathArray.pop()
+                            const rootPath = pathArray.join('/') + '/'
+                            relativeFilePath = filePath.replaceAll('\\', '/').replace(rootPath, '')
+                            return relativeFilePath
+                        }
+                    }
+                }
+            }
+
+            return null
+        }
+
         function keyboard(passedOptions) {
             const rtlLanguages = [
                 'ar-SA',
@@ -33,7 +70,6 @@
             let keyboardInputType = 'text';
             let keyboardOpen = false;
             let keyboardStreamField;
-            let keyboardWrapperPresent = false;
             let languageArrayPosition = 0;
             let ligatureObject;
             let localeName = '';
@@ -74,7 +110,7 @@
                 const fs = require('fs')
                 const path = require('path')
 
-                const directoryPath = `${getRelativeFilePath(__filename)}/../../languages/`
+                const directoryPath = `${getCurrentScriptPath(true)}/../../languages/`
                 const files = fs.readdirSync(directoryPath)
 
                 for (let prop in files) {
@@ -454,7 +490,7 @@
                     };
 
                     // See if there is a local language file, otherwise default to CDN.
-                    fetch(`${getRelativeFilePath(__filename)}/../../languages/${file}.klc`)
+                    fetch(`${getCurrentScriptPath(true)}/../../languages/${file}.klc`)
                         .then((response) => {
                             if (response.ok) {
                                 return response.text();
@@ -577,7 +613,7 @@
                             value = value.trim().split('//')[0].trim().replace(/\t/g, ' ').replace('  ', ' ').replace('  ', ' ').split(' ');
                             value.splice(1, 1);
 
-                            var ligatureArr = [];
+                            let ligatureArr = [];
                             value.forEach(function (_value) {
                                 ligatureArr.push('"' + _value + '"');
                             });
@@ -618,14 +654,12 @@
 
                 if (document.getElementsByClassName('keyboard-wrapper').length) {
                     destroyKeys();
-                    keyboardWrapperPresent = true;
                 } else {
                     document.body.insertAdjacentHTML('afterbegin', '<div class="keyboard-wrapper"></div>');
                     //*****If direct enter enabled, don't bother.*****
                     if (!options.directEnter) {
                         document.body.insertAdjacentHTML('afterbegin', '<div class="keyboard-blackout-background"></div>');
                     }
-                    keyboardWrapperPresent = false;
                 }
 
                 generateRow(keyMapArray.slice(0, 13));
@@ -1187,6 +1221,7 @@
 
         document.keyboard = keyboard
 
-        document.dispatchEvent(new CustomEvent('import_done', { detail: { file: getRelativeFilePath(__filename) } }))
+        document.dispatchEvent(new CustomEvent('import_done', { detail: { file: getCurrentScriptPath(true) } }))
+        // document.dispatchEvent(new CustomEvent('import_done', { detail: { file: getRelativeFilePath(__filename) } }))
     })
 })(document)
