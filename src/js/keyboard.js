@@ -17,6 +17,17 @@
 (function (document) {
     document.addEventListener('DOMContentLoaded', function () {
 
+        function getCanonicalPath(path) {
+            return path.replace('\\', '/').split('/')
+                .reduce((a, v) => {
+                    if (v === '.'); // do nothing
+                    else if (v === '..') a.pop();
+                    else a.push(v);
+                    return a;
+                }, [])
+                .join('/');
+        }
+
         function getCurrentScriptPath(relative) {
             if (!(typeof relative === 'boolean')) {
                 throw new Error('Argument missmatch')
@@ -33,7 +44,7 @@
                     if (matches) {
                         let filePath = matches[0]
                         // Filter out line and column values if present
-                        filePath = filePath.replace(/:\d+:\d+\)$/, '')
+                        filePath = filePath.replace(/:\d+:\d+\)?$/, '')
                         if (!relative) {
                             return filePath
                         } else {
@@ -110,7 +121,7 @@
                 const fs = require('fs')
                 const path = require('path')
 
-                const directoryPath = `${getCurrentScriptPath(true)}/../../languages/`
+                const directoryPath = getCanonicalPath(`${getCurrentScriptPath(true)}` + '/../../languages/')
                 const files = fs.readdirSync(directoryPath)
 
                 for (let prop in files) {
@@ -490,7 +501,9 @@
                     };
 
                     // See if there is a local language file, otherwise default to CDN.
-                    fetch(`${getCurrentScriptPath(true)}/../../languages/${file}.klc`)
+
+                    let localKlcFile = getCanonicalPath(`${getCurrentScriptPath(true)}` + `/../../languages/${file}.klc`)
+                    fetch(localKlcFile)
                         .then((response) => {
                             if (response.ok) {
                                 return response.text();
@@ -519,7 +532,7 @@
                                         console.error(error);
                                     });
                             } else {
-                                throw new Error('Language file not found');
+                                throw new Error(`Language file not found. ('${localKlcFile}')`);
                             }
                         });
                 }
