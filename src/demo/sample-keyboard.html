@@ -2,24 +2,32 @@
 <html>
 
 <head>
-    <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
-    <script type="text/javascript" src="main.js"></script>
+    <title>MOK - Multilinual Onscreen Keyboard - Sample</title>
+    <link rel="icon" href="favicon.ico">
     <link rel="stylesheet" type="text/css" href="styles.css">
+    <script type="text/javascript" src="../js/keyboard.js"></script>
     <script type="text/javascript">
-        $(document).ready(function () {
-            $(document).keyboard({
-                language: 'azeri-latin, us:English, arabic:العَرَبِيَّة, vietnamese:tiếng Việt, hindi:हिन्दी',
+        document.addEventListener('DOMContentLoaded', function () {
+            keyboard({
+                language: 'azeri-latin, german:Deutsch, us:English, arabic:العَرَبِيَّة, vietnamese:tiếng Việt, hindi:हिन्दी',
                 enterKey: function () {
-                    alert('Hey there! This is a callback function example.');
+                    alert('Hey there! This is a callback function example.')
                 },
                 keyboardPosition: 'bottom',
                 directEnter: false,
-                showSelectedLanguage: true
-            });
-        });
+                showSelectedLanguage: true,
+                showTabKey: true,
+                showEnterKey: true,
+                showCtrlKey: true,
+                showLanguageKey: true,
+                showAltKey: true,
+                showSpareKey: true,
+                boldKeyWritings: true,
+                acceptKeyWriting: 'Done',
+                cancelKeyWriting: 'Revert'
+            })
+        })
     </script>
-    <title>MOK Project - Sample</title>
-    <link rel="icon" href="favicon.ico">
 </head>
 
 <body>
