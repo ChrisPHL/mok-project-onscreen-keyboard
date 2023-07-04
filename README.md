@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', function () {
 The keyboard will first search for the given language file in `./languages/` and if not found, will pull from the CDN if you set ```loadExternalKeyboardFiles = true```.
 
 ## Installation / Running
-Just copy the files of thsi project to your appliance.
+Just copy the files of this project to your appliance.
 
 
 ## Options
