@@ -840,7 +840,7 @@ function keyboard(passedOptions) {
             newKeyboardRow.insertAdjacentHTML('beforeend', '<button class="keyboard-key keyboard-key-lg" data-keyval="" style="opacity: 0.0; cursor: default;"></button>');
         }
         if (options.showLanguageKey) {
-            newKeyboardRow.insertAdjacentHTML('beforeend', `<button class="keyboard-key keyboard-key-lg language-button" data-keyval="language">${languageButtonText}</button>`);
+            newKeyboardRow.insertAdjacentHTML('beforeend', `<button class="keyboard-key keyboard-key-lg language-button" data-keyval="language" style="color: ${languageKeyTextColor};">${languageButtonText}</button>`);
         } else {
             newKeyboardRow.insertAdjacentHTML('beforeend', `<button class="keyboard-key keyboard-key-lg language-button" data-keyval="" style="opacity: 0.0; cursor: default;"></button>`);
         }
