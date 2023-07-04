@@ -18,7 +18,7 @@
     document.addEventListener('DOMContentLoaded', function () {
 
         function getCanonicalPath(path) {
-            return path.replace('\\', '/').split('/')
+            return path.replaceAll('\\', '/').split('/')
                 .reduce((a, v) => {
                     if (v === '.'); // do nothing
                     else if (v === '..') a.pop();
@@ -119,17 +119,20 @@
 
             const getLanguageFileByLocale = (locale) => {
                 const fs = require('fs')
-                const path = require('path')
 
-                const directoryPath = getCanonicalPath(`${getCurrentScriptPath(true)}` + '/../../languages/')
+                const directoryPath = getCanonicalPath(`${getCurrentScriptPath(false)}` + '/../../languages/')
                 const files = fs.readdirSync(directoryPath)
 
                 for (let prop in files) {
                     const file = files[prop]
-                    const filePath = path.join(directoryPath, file)
-                    const fileExtension = path.extname(file);
-
-                    if (fileExtension === '.klc') {
+                    const filePath = getCanonicalPath(directoryPath + file)
+                    let fileExtension = ''
+                    try {
+                        fileExtension = file.split('.').pop()
+                    } catch (error) {
+                        continue
+                    }
+                    if (fileExtension === 'klc') {
                         const fileContents = fs.readFileSync(filePath, 'utf-16le')
                         const match = fileContents.match(new RegExp(`LOCALENAME\\s+"${locale}"`))
 
