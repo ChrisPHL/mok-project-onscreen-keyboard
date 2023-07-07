@@ -324,7 +324,6 @@ function keyboard(passedOptions) {
             } = options;
 
             let parentElementIterator = event.target;
-            let targetIsKeyboardElement = false
 
             if (parentElementIterator.getAttribute('contenteditable') !== 'true' &&
                 parentElementIterator.tagName.toLowerCase() !== 'input') {
@@ -367,7 +366,12 @@ function keyboard(passedOptions) {
                         inputFieldType = focusedInputField.type;
                         keyboardInputType = inputFieldType === 'password' ? 'password' : 'text';
 
-                        keyboardStreamField.placeholder = inputAttributes.placeholder;
+                        // CRITICAL ERROR: 'Uncaught TypeError: Cannot set properties of undefined (setting 'placeholder')' in file 'D:\projects\floorstand-gui\3rdparty\mok-project-onscreen-keyboard\src\js\keyboard.js' on line number 370: 57.
+                        try {
+                            keyboardStreamField.placeholder = inputAttributes.placeholder
+                        } catch (error) {
+                            console.log(error)
+                        }
                         keyboardStreamField.value = focusedInputField.value;
                         keyboardStreamField.type = keyboardInputType;
                     } else {
