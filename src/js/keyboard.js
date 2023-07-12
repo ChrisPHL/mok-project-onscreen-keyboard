@@ -370,7 +370,11 @@ function keyboard(passedOptions) {
                         try {
                             keyboardStreamField.placeholder = inputAttributes.placeholder
                         } catch (error) {
-                            console.log(error)
+                            console.log('################################################################################\n' + error)
+                            console.log(`keyboardStreamField=${keyboardStreamField}`)
+                            console.log(`inputAttributes=${inputAttributes}`)
+                            console.log(`document.getElementsByClassName('keyboard-input-field')=${document.getElementsByClassName('keyboard-input-field')}`)
+                            console.log('################################################################################')
                         }
                         keyboardStreamField.value = focusedInputField.value;
                         keyboardStreamField.type = keyboardInputType;
