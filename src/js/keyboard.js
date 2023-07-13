@@ -38,7 +38,7 @@ function getCurrentScriptPath(relative) {
         let stackLines = stack.split('\n');
         for (let i = 0; i < stackLines.length; i++) {
             let line = stackLines[i]
-            let matches = line.match(/(?:file:\/{1,3}|[a-zA-Z]:[\\/]|https?:\/\/)[^\s]+/)
+            let matches = line.match(/(?:(file:)?\/{1,3}|[a-zA-Z]:[\\/]|https?:\/\/)[^\s]+/)
             if (matches) {
                 let filePath = matches[0]
                 // Filter out line and column values if present
@@ -49,8 +49,12 @@ function getCurrentScriptPath(relative) {
                     let pathArray = window.location.pathname.split('/')
                     pathArray = pathArray.filter(value => value !== '')
                     pathArray.pop()
-                    const rootPath = pathArray.join('/') + '/'
-                    relativeFilePath = filePath.replaceAll('\\', '/').replace(rootPath, '')
+                    const rootPath = `${pathArray.join('/')}/`
+                    // Runnning Linux we end up with the root slash missing so it will not be replaced in the following step :-/
+                    let relativeFilePath = filePath.replaceAll('\\', '/').replace(rootPath, '')
+                    if ('/' === relativeFilePath.charAt(0)) {
+                        relativeFilePath = relativeFilePath.substring(1)
+                    }
                     return relativeFilePath
                 }
             }
