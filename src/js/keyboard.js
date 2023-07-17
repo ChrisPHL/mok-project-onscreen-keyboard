@@ -825,7 +825,7 @@ function keyboard(passedOptions) {
             const keyboardWrapper = document.querySelector('.keyboard-wrapper');
             const keyboardActionWrapper = document.createElement('div');
             keyboardActionWrapper.className = 'keyboard-action-wrapper';
-            keyboardActionWrapper.innerHTML = `<button class="keyboard-action-button keyboard-cancel-button">${options.cancelKeyWriting}</button><input type="text" class="keyboard-input-field"><button class="keyboard-action-button keyboard-accept-button">${options.acceptKeyWriting}</button>`;
+            keyboardActionWrapper.innerHTML = `<button class="keyboard-action-button keyboard-cancel-button">${options.cancelKeyWriting}</button> <input type="text" class="keyboard-input-field"><button class="keyboard-action-button keyboard-accept-button">${options.acceptKeyWriting}</button>`;
             if (options.boldKeyWritings) {
                 for (const child of keyboardActionWrapper.children) {
                     child.style.fontWeight = 'bold';
@@ -1052,8 +1052,10 @@ function keyboard(passedOptions) {
                     }
                     break;
                 case 'backspace':
-                    keyboardStreamField.value = keyboardStreamField.value.slice(0, caretPosition - 1) + keyboardStreamField.value.slice(caretPosition);
-                    caretPosition -= 1;
+                    if (0 !== caretPosition) {
+                        keyboardStreamField.value = keyboardStreamField.value.slice(0, caretPosition - 1) + keyboardStreamField.value.slice(caretPosition);
+                        caretPosition -= 1;
+                    }
                     keyboardStreamField.focus();
                     keyboardStreamField.selectionStart = caretPosition;
                     keyboardStreamField.selectionEnd = caretPosition;
