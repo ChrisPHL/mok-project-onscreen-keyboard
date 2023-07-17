@@ -364,22 +364,17 @@ function keyboard(passedOptions) {
                 keyboardStreamField = focusedInputField;
 
                 //*****If direct enter enabled, don't bother.*****
-                if (!options.directEnter) {
+                const configureKeyboard = () => {
                     keyboardStreamField = document.getElementsByClassName('keyboard-input-field')[0];
+                    if (!keyboardStreamField) {
+                        setTimeout(configureKeyboard, 10)
+                        return
+                    }
                     if (focusedInputField.tagName === 'INPUT') {
                         inputFieldType = focusedInputField.type;
                         keyboardInputType = inputFieldType === 'password' ? 'password' : 'text';
 
-                        // CRITICAL ERROR: 'Uncaught TypeError: Cannot set properties of undefined (setting 'placeholder')' in file 'D:\projects\floorstand-gui\3rdparty\mok-project-onscreen-keyboard\src\js\keyboard.js' on line number 370: 57.
-                        try {
-                            keyboardStreamField.placeholder = inputAttributes.placeholder
-                        } catch (error) {
-                            console.log('################################################################################\n' + error)
-                            console.log(`keyboardStreamField=${keyboardStreamField}`)
-                            console.log(`inputAttributes=${inputAttributes}`)
-                            console.log(`document.getElementsByClassName('keyboard-input-field')=${document.getElementsByClassName('keyboard-input-field')}`)
-                            console.log('################################################################################')
-                        }
+                        keyboardStreamField.placeholder = inputAttributes.placeholder
                         keyboardStreamField.value = focusedInputField.value;
                         keyboardStreamField.type = keyboardInputType;
                     } else {
@@ -387,13 +382,27 @@ function keyboard(passedOptions) {
                         keyboardStreamField.value = focusedInputField.innerHTML;
                         keyboardStreamField.type = 'text';
                     }
-                    document.getElementsByClassName('keyboard-blackout-background')[0].style.display = 'block';
-                }
-                //************************************************
+                    const background = document.getElementsByClassName('keyboard-blackout-background')[0]
+                    if (!background) {
+                        setTimeout(configureKeyboard, 10)
+                        return
+                    }
+                    background.style.display = 'block'
 
-                document.getElementsByClassName('keyboard-wrapper')[0].style.display = 'block';
-                keyboardOpen = true;
-                keyboardStreamField.focus();
+                    const wrapper = document.getElementsByClassName('keyboard-wrapper')[0]
+                    if (!wrapper) {
+                        setTimeout(configureKeyboard, 10)
+                        return
+                    }
+                    wrapper.style.display = 'block'
+
+                    keyboardOpen = true;
+                    keyboardStreamField.focus();
+                }
+
+                if (!options.directEnter) {
+                    setTimeout(configureKeyboard, 1)
+                }
             }
         }
 
@@ -531,7 +540,7 @@ function keyboard(passedOptions) {
 
             // See if there is a local language file, otherwise default to CDN.
 
-            let localKlcFile = getCanonicalPath(`${getCurrentScriptPath(true)}` + `/../../languages/${file}.klc`)
+            let localKlcFile = getCanonicalPath(`${getCurrentScriptPath(true)}/../../languages/${file}.klc`)
             fetch(localKlcFile)
                 .then((response) => {
                     if (response.ok) {
