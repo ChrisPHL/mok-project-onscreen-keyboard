@@ -6,9 +6,9 @@ The basic change of this fork in comparison to the original is the de-jQuery-fic
 
 [Super Basic Demo](https://chpohl.de/projekte/mok-project-onscreen-keyboard/src/demo/sample-keyboard.htm)
 
-Work to be done:
+TODO:
 * Include numeric layout
-* Check input according to optional Regex attribuite field
+* Check input according to optional Regex attribute field
 
 ## Usage
 
