@@ -239,7 +239,8 @@ function keyboard(passedOptions) {
         loadExternalKeyboardFiles = false,
         boldKeyWritings = true,
         acceptKeyWriting = 'Accept',
-        cancelKeyWriting = 'Cancel'
+        cancelKeyWriting = 'Cancel',
+        acceptKey = ''
     }) => ({
         acceptColor,
         acceptTextColor,
@@ -276,7 +277,8 @@ function keyboard(passedOptions) {
         loadExternalKeyboardFiles,
         boldKeyWritings,
         acceptKeyWriting,
-        cancelKeyWriting
+        cancelKeyWriting,
+        acceptKey
     });
 
     const options = initOptions(passedOptions);
@@ -1165,6 +1167,9 @@ function keyboard(passedOptions) {
         clearKeyboardState();
         keyboardOpen = false;
         readKeyboardFile();
+        if (options.acceptKey && typeof options.acceptKey === 'function') {
+            options.acceptKey();
+        }
     }
 
     //***********************************************************************************
