@@ -290,7 +290,8 @@ function keyboard(passedOptions) {
         maxlength: '',
         min: '',
         max: '',
-        placeholder: ''
+        placeholder: '',
+        onInput: ''
     };
 
     //***********************************************************************************
@@ -358,7 +359,7 @@ function keyboard(passedOptions) {
 
             //*****Let's capture a few attributes about our input field.*****
             for (let prop in inputAttributes) {
-                inputAttributes[prop] = tempElement[prop] === undefined ? '' : tempElement[prop];
+                inputAttributes[prop] = tempElement.getAttribute(prop) === undefined ? '' : tempElement.getAttribute(prop);
             };
 
             if (!inputAttributes.disabled && !inputAttributes.readonly) {
@@ -1167,8 +1168,8 @@ function keyboard(passedOptions) {
         clearKeyboardState();
         keyboardOpen = false;
         readKeyboardFile();
-        if (options.acceptKey && typeof options.acceptKey === 'function') {
-            options.acceptKey();
+        if (inputAttributes['onInput'] && typeof window[inputAttributes['onInput']] === 'function') {
+            window[inputAttributes['onInput']]();
         }
     }
 
