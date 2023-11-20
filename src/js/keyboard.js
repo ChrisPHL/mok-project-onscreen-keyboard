@@ -104,6 +104,7 @@ function keyboard(passedOptions) {
     let shiftStateObject;
     let storedKeyboardObject = { keyboardFile: '', arrayPosition: '' };
     let textFlowDirection = 'LTR';
+    let keyboardStreamFieldTextColorOrig = null;
 
     const KEYBOARD_VERSION = '1.1.7';
     const LANGUAGE_KEY_DEFAULT = 'Language';
@@ -291,7 +292,8 @@ function keyboard(passedOptions) {
         min: '',
         max: '',
         placeholder: '',
-        onInput: ''
+        onInput: '',
+        inputFilter: ''
     };
 
     //***********************************************************************************
@@ -378,11 +380,11 @@ function keyboard(passedOptions) {
                         keyboardInputType = inputFieldType === 'password' ? 'password' : 'text';
 
                         keyboardStreamField.placeholder = inputAttributes.placeholder
-                        keyboardStreamField.value = focusedInputField.value;
+                        keyboardStreamField.value = focusedInputField.value.trim();
                         keyboardStreamField.type = keyboardInputType;
                     } else {
                         inputFieldType = 'text';
-                        keyboardStreamField.value = focusedInputField.innerHTML;
+                        keyboardStreamField.value = focusedInputField.innerHTML.trim();
                         keyboardStreamField.type = 'text';
                     }
                     const background = document.getElementsByClassName('keyboard-blackout-background')[0]
@@ -1130,9 +1132,24 @@ function keyboard(passedOptions) {
             newString = keyboardStreamField.value;
 
             //*****Here we check if adding a character violated any user-defined rules. We check after the fact because of ligature and dead keys.*****
-            if ((inputAttributes.maxlength !== '-1' && inputAttributes.maxlength !== '' && newString.length > inputAttributes.maxlength) || (inputFieldType === 'number' && inputAttributes.max !== '' && inputAttributes.max !== '-1' && (newString * 1) > (inputAttributes.max * 1)) || (inputFieldType === 'number' && inputAttributes.min !== '' && inputAttributes.min !== '-1' && (newString * 1) < (inputAttributes.min * 1)) || keyPressed.search(options.keyCharacterRegex[inputFieldType]) < 0 || newString.search(options.inputFieldRegex[inputFieldType]) < 0) {
+            if ((inputAttributes.maxlength !== '-1' && inputAttributes.maxlength !== '' && inputAttributes.maxlength !== null && newString.length > inputAttributes.maxlength)
+                || (inputFieldType === 'number' && inputAttributes.max !== '' && inputAttributes.max !== null && inputAttributes.max !== '-1' && (newString * 1) > (inputAttributes.max * 1))
+                || (inputFieldType === 'number' && inputAttributes.min !== '' && inputAttributes.min !== null && inputAttributes.min !== '-1' && (newString * 1) < (inputAttributes.min * 1))
+                || keyPressed.search(options.keyCharacterRegex[inputFieldType]) < 0
+                || newString.search(options.inputFieldRegex[inputFieldType]) < 0) {
                 keyboardStreamField.value = tempString;
                 caretPosition--;
+            }
+            else if (inputAttributes.inputFilter !== '' && inputAttributes.inputFilter !== null) {
+                let regex = new RegExp(inputAttributes.inputFilter);
+                if (regex.test(newString)) {
+                    resetInputFieldTextColor()
+                } else {
+                    if (null === keyboardStreamFieldTextColorOrig) {
+                        keyboardStreamFieldTextColorOrig = keyboardStreamField.style.color
+                    }
+                    keyboardStreamField.style.color = options.cancelColor
+                }
             }
             //*****************************************************************************************************************************************
 
@@ -1142,14 +1159,24 @@ function keyboard(passedOptions) {
             keyboardStreamField.selectionStart = caretPosition;
             keyboardStreamField.selectionEnd = caretPosition;
         }
+
+        if (keyboardStreamField.value.length == 0) {
+            resetInputFieldTextColor()
+        }
     }
 
+    function resetInputFieldTextColor() {
+        if (null !== keyboardStreamFieldTextColorOrig) {
+            keyboardStreamField.style.color = keyboardStreamFieldTextColorOrig
+        }
+    }
 
     //***********************************************************************************
     //*                       Discard keyboard data and close.                          *
     //***********************************************************************************
     function discardData() {
         keyboardStreamField.value = '';
+        resetInputFieldTextColor()
         clearKeyboardState();
         keyboardOpen = false;
         readKeyboardFile();
@@ -1159,12 +1186,20 @@ function keyboard(passedOptions) {
     //*                   Submit keyboard data to form and close.                       *
     //***********************************************************************************
     function acceptData() {
+        if (inputAttributes.inputFilter !== '' && inputAttributes.inputFilter !== null) {
+            let regex = new RegExp(inputAttributes.inputFilter);
+            if (!regex.test(keyboardStreamField.value)) {
+                discardData()
+                return
+            }
+        }
         if (focusedInputField.tagName === 'INPUT') {
             focusedInputField.value = keyboardStreamField.value;
         } else {
             focusedInputField.innerHTML = keyboardStreamField.value;
         }
         keyboardStreamField.value = '';
+        resetInputFieldTextColor()
         clearKeyboardState();
         keyboardOpen = false;
         readKeyboardFile();
