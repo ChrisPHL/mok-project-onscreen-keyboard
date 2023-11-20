@@ -109,7 +109,7 @@ function keyboard(passedOptions) {
     const KEYBOARD_VERSION = '1.1.7';
     const LANGUAGE_KEY_DEFAULT = 'Language';
     const LANGUAGE_MAP_SPLIT_CHAR = ':';
-    const TRIGGER_KEYBOARD_FLAG = 'triggerKeyboard';
+    const TRIGGER_KEYBOARD_FLAG = 'triggerkeyboard';
 
     const CDN_LANGUAGES_DIRECTORY = `https://cdn.jsdelivr.net/npm/mok-project@${KEYBOARD_VERSION}/dist/languages`;
 
