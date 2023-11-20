@@ -8,7 +8,7 @@ The basic change of this fork in comparison to the original is the de-jQuery-fic
 
 TODO:
 * Include numeric layout
-* Check input according to optional Regex attribute field
+* ~~Check input according to optional Regex attribute field~~ (https://github.com/ChrisPHL/mok-project-onscreen-keyboard/commit/8e91cfd1f5d03376c1e09b1ced84cca84856e26d)
 
 ## Usage
 
