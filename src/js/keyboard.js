@@ -1139,17 +1139,8 @@ function keyboard(passedOptions) {
                 || newString.search(options.inputFieldRegex[inputFieldType]) < 0) {
                 keyboardStreamField.value = tempString;
                 caretPosition--;
-            }
-            else if (inputAttributes.inputFilter !== '' && inputAttributes.inputFilter !== null) {
-                let regex = new RegExp(inputAttributes.inputFilter);
-                if (regex.test(newString)) {
-                    resetInputFieldTextColor()
-                } else {
-                    if (null === keyboardStreamFieldTextColorOrig) {
-                        keyboardStreamFieldTextColorOrig = keyboardStreamField.style.color
-                    }
-                    keyboardStreamField.style.color = options.cancelColor
-                }
+            } else {
+                checkInputFilter(newString)
             }
             //*****************************************************************************************************************************************
 
@@ -1165,6 +1156,19 @@ function keyboard(passedOptions) {
         }
     }
 
+    function checkInputFilter(string) {
+        if (inputAttributes.inputFilter !== '' && inputAttributes.inputFilter !== null) {
+            let regex = new RegExp(inputAttributes.inputFilter);
+            if (regex.test(string)) {
+                resetInputFieldTextColor()
+            } else {
+                if (null === keyboardStreamFieldTextColorOrig) {
+                    keyboardStreamFieldTextColorOrig = keyboardStreamField.style.color
+                }
+                keyboardStreamField.style.color = options.cancelColor
+            }
+        }
+    }
     function resetInputFieldTextColor() {
         if (null !== keyboardStreamFieldTextColorOrig) {
             keyboardStreamField.style.color = keyboardStreamFieldTextColorOrig
