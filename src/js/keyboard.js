@@ -1139,8 +1139,6 @@ function keyboard(passedOptions) {
                 || newString.search(options.inputFieldRegex[inputFieldType]) < 0) {
                 keyboardStreamField.value = tempString;
                 caretPosition--;
-            } else {
-                checkInputFilter(newString)
             }
             //*****************************************************************************************************************************************
 
@@ -1150,6 +1148,8 @@ function keyboard(passedOptions) {
             keyboardStreamField.selectionStart = caretPosition;
             keyboardStreamField.selectionEnd = caretPosition;
         }
+        checkInputFilter(keyboardStreamField.value)
+
 
         if (keyboardStreamField.value.length == 0) {
             resetInputFieldTextColor()
