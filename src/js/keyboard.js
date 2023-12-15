@@ -830,7 +830,7 @@ function keyboard(passedOptions) {
             const keyboardWrapper = document.querySelector('.keyboard-wrapper');
             const keyboardActionWrapper = document.createElement('div');
             keyboardActionWrapper.className = 'keyboard-action-wrapper';
-            keyboardActionWrapper.innerHTML = `<button class="keyboard-action-button keyboard-cancel-button">${options.cancelKeyWriting}</button> <input type="text" class="keyboard-input-field"><button class="keyboard-action-button keyboard-accept-button">${options.acceptKeyWriting}</button>`;
+            keyboardActionWrapper.innerHTML = `<button id="cancelKey" class="keyboard-action-button keyboard-cancel-button">${options.cancelKeyWriting}</button> <input type="text" class="keyboard-input-field"><button id="acceptKey" class="keyboard-action-button keyboard-accept-button">${options.acceptKeyWriting}</button>`;
             if (options.boldKeyWritings) {
                 for (const child of keyboardActionWrapper.children) {
                     child.style.fontWeight = 'bold';
@@ -1127,7 +1127,6 @@ function keyboard(passedOptions) {
             //*****Store before and after copies in case we need to revert.*****
             let tempString = keyboardStreamField.value;
             let newString;
-
             keyboardStreamField.value = keyboardStreamField.value.slice(0, caretPosition) + keyPressed + keyboardStreamField.value.slice(caretPosition);
             newString = keyboardStreamField.value;
 
@@ -1159,13 +1158,19 @@ function keyboard(passedOptions) {
     function checkInputFilter(string) {
         if (inputAttributes.inputFilter !== '' && inputAttributes.inputFilter !== null) {
             let regex = new RegExp(inputAttributes.inputFilter);
+            const acceptKey = document.getElementById('acceptKey')
+            acceptKey.style.transition = 'background-color 1s ease-in-out'
             if (regex.test(string)) {
+                acceptKey.disabled = false
+                acceptKey.style.backgroundColor = options.acceptColor
                 resetInputFieldTextColor()
             } else {
                 if (null === keyboardStreamFieldTextColorOrig) {
                     keyboardStreamFieldTextColorOrig = keyboardStreamField.style.color
                 }
                 keyboardStreamField.style.color = options.cancelColor
+                acceptKey.disabled = true
+                acceptKey.style.backgroundColor = 'lightgrey'
             }
         }
     }
