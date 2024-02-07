@@ -1326,13 +1326,16 @@ const isNode = new Function("try {return this===global;}catch(e){return false;}"
 
 if (isNode()) {
     // Running in Node.js environment, wrapping the code here...
-    (function (document) {
-        document.addEventListener('DOMContentLoaded', function () {
-
+    (function (window, document) {
+        function setupKeyboard() {
             document.keyboard = keyboard
             document.dispatchEvent(new CustomEvent('import_done', { detail: { file: getCurrentScriptPath(true) } }))
+        }
+        document.addEventListener('DOMContentLoaded', function () {
+            setupKeyboard()
         })
-    })(document)
+        window.setupKeyboard = setupKeyboard
+    })(window, document)
 }
 else {
     document.keyboard = keyboard
