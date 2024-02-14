@@ -1184,7 +1184,9 @@ function keyboard(passedOptions) {
     //*                       Discard keyboard data and close.                          *
     //***********************************************************************************
     function discardData() {
-        keyboardStreamField.value = '';
+        if (undefined !== keyboardStreamField) {
+            keyboardStreamField.value = '';
+        }
         resetInputFieldTextColor()
         clearKeyboardState();
         keyboardOpen = false;
