@@ -914,7 +914,7 @@ function keyboard(passedOptions) {
                 largeKeys = keyboardRows[prop].querySelectorAll('.keyboard-key-lg').length;
                 xlargeKeys = keyboardRows[prop].querySelectorAll('.keyboard-key-xl').length;
             } catch (error) {
-                console.error(error)
+                console.error(`MOK-project ERROR: ${error}`)
             }
             const smallKeyWidth = (rowWidth - (maxKeyCount * keyPadding)) / maxKeyCount;
             const largeKeyWidth = (rowWidth - ((smallKeys + largeKeys + xlargeKeys) * keyPadding) - (smallKeys * smallKeyWidth) - (xlargeKeys * (rowWidth / 3))) / largeKeys;
@@ -1190,7 +1190,12 @@ function keyboard(passedOptions) {
         resetInputFieldTextColor()
         clearKeyboardState();
         keyboardOpen = false;
-        readKeyboardFile();
+        // readKeyboardFile();
+        // Just make the keyboard invisble instead of reading the complete keyboard file again..:
+        if (!options.directEnter) {
+            document.querySelector('.keyboard-blackout-background').style.display = 'none';
+        }
+        document.querySelector('.keyboard-wrapper').style.display = 'none';
     }
 
     //***********************************************************************************
