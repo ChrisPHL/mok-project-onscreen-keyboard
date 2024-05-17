@@ -365,6 +365,9 @@ function keyboard(passedOptions) {
             };
 
             if (!inputAttributes.disabled && !inputAttributes.readonly) {
+                if (!event.target) {
+                    console.log(`FIXME: event.target seems to be undefined which it shouldn't at this point.`)
+                }
                 focusedInputField = event.target;
                 keyboardStreamField = focusedInputField;
 
@@ -1209,10 +1212,14 @@ function keyboard(passedOptions) {
                 return
             }
         }
-        if (focusedInputField.tagName === 'INPUT') {
-            focusedInputField.value = keyboardStreamField.value;
-        } else {
-            focusedInputField.innerHTML = keyboardStreamField.value;
+        try {
+            if (focusedInputField.tagName === 'INPUT') {
+                focusedInputField.value = keyboardStreamField.value;
+            } else {
+                focusedInputField.innerHTML = keyboardStreamField.value;
+            }
+        } catch (error) {
+            console.log(`FIXME: focusedInputField seems to be undefined which it shouldn't at this point.`, error)
         }
         keyboardStreamField.value = '';
         resetInputFieldTextColor()
