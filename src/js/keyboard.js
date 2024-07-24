@@ -231,16 +231,25 @@ function keyboard(passedOptions) {
         spareKey = '',
         specifiedFieldsOnly = false,
         tabKey = '',
+        bkspInsteadOfRightShiftKey = false,
+        shortBkspKey = false,
+        showCapsLockKey = true,
+        shortCapsLockKey = false,
         showTabKey = true,
+        shortTabKey = false,
         showEnterKey = true,
+        shortEnterKey = false,
+        shortShiftKey = false,
         showCtrlKey = true,
         showLanguageKey = true,
         showAltKey = true,
         showSpareKey = true,
         loadExternalKeyboardFiles = false,
-        boldKeyWritings = true,
+        boldKeyWritings = false,
         acceptKeyWriting = 'Accept',
         cancelKeyWriting = 'Cancel',
+        acceptKeyIcon = undefined,
+        cancelKeyIcon = undefined,
         acceptKey = ''
     }) => ({
         acceptColor,
@@ -269,16 +278,25 @@ function keyboard(passedOptions) {
         spareKey,
         specifiedFieldsOnly,
         tabKey,
+        bkspInsteadOfRightShiftKey,
+        shortBkspKey,
         showTabKey,
+        shortTabKey,
         showEnterKey,
+        shortEnterKey,
+        shortShiftKey,
         showCtrlKey,
         showLanguageKey: hideLanguageKeyOnSingleItemLanguageList(showLanguageKey, language),
         showAltKey,
         showSpareKey,
+        showCapsLockKey,
+        shortCapsLockKey,
         loadExternalKeyboardFiles,
         boldKeyWritings,
         acceptKeyWriting,
         cancelKeyWriting,
+        acceptKeyIcon,
+        cancelKeyIcon,
         acceptKey
     });
 
@@ -842,24 +860,45 @@ function keyboard(passedOptions) {
             keyboardWrapper.insertBefore(keyboardActionWrapper, keyboardWrapper.firstChild);
         }
 
-
+        // Help and copy source for symbols: https://www.amp-what.com/
         const keyboardRows = document.querySelectorAll('.keyboard-row');
-        keyboardRows[0].insertAdjacentHTML('beforeend', '<button class="keyboard-key keyboard-key-lg" data-keyval="backspace">Backspace</button>');
+        if (!options.bkspInsteadOfRightShiftKey) {
+            if (options.shortBkspKey) {
+                keyboardRows[0].insertAdjacentHTML('beforeend', '<button class="keyboard-key keyboard-key-sm" data-keyval="backspace">⌫</button>');
+            } else {
+                keyboardRows[0].insertAdjacentHTML('beforeend', '<button class="keyboard-key keyboard-key-lg" data-keyval="backspace">⌫</button>');
+            }
+        }
 
         if (options.showTabKey) {
-            keyboardRows[1].insertAdjacentHTML('afterbegin', '<button class="keyboard-key keyboard-key-lg" data-keyval="tab">Tab</button>');
-        } else {
-            keyboardRows[1].insertAdjacentHTML('afterbegin', '<button class="keyboard-key keyboard-key-sm" data-keyval="" style="opacity: 0.0; cursor: default;"></button>');
+            keyboardRows[1].insertAdjacentHTML('afterbegin', '<button class="keyboard-key keyboard-key-150" data-keyval="tab">↹</button>');
         }
-        keyboardRows[2].insertAdjacentHTML('afterbegin', `<button class="keyboard-key keyboard-key-lg caps-lock-key ${options.isPermanentUppercase ? 'caps-lock-key-active' : ''}" data-keyval="caps lock">Caps Lock</button>`);
-        if (options.showEnterKey) {
-            keyboardRows[2].insertAdjacentHTML('beforeend', '<button class="keyboard-key keyboard-key-lg" data-keyval="enter">Enter</button>');
-        } else {
-            keyboardRows[2].insertAdjacentHTML('beforeend', '<button class="keyboard-key keyboard-key-lg" data-keyval="" style="opacity: 0.0; cursor: default;"></button>');
-        }
-        keyboardRows[3].insertAdjacentHTML('afterbegin', '<button class="keyboard-key keyboard-key-lg" data-keyval="shift">Shift</button>');
-        keyboardRows[3].insertAdjacentHTML('beforeend', '<button class="keyboard-key keyboard-key-lg" data-keyval="shift">Shift</button>');
 
+        if (options.showCapsLockKey) {
+            keyboardRows[2].insertAdjacentHTML('afterbegin', `<button class="keyboard-key keyboard-key-190 caps-lock-key ${options.isPermanentUppercase ? 'caps-lock-key-active' : ''}" data-keyval="caps lock">⇬</button>`);
+        }
+        if (options.showEnterKey) {
+            keyboardRows[2].insertAdjacentHTML('beforeend', '<button class="keyboard-key keyboard-key-lg" data-keyval="enter">⏎</button>');
+        }
+
+        if (options.shortShiftKey) {
+            keyboardRows[3].insertAdjacentHTML('afterbegin', '<button class="keyboard-key keyboard-key-sm" data-keyval="shift">↑</button>');
+        } else {
+            keyboardRows[3].insertAdjacentHTML('afterbegin', '<button class="keyboard-key keyboard-key-210" data-keyval="shift">↑</button>');
+        }
+        if (!options.bkspInsteadOfRightShiftKey) {
+            if (options.shortShiftKey) {
+                keyboardRows[3].insertAdjacentHTML('beforeend', '<button class="keyboard-key keyboard-key-sm" data-keyval="shift">↑</button>');
+            } else {
+                keyboardRows[3].insertAdjacentHTML('beforeend', '<button class="keyboard-key keyboard-key-lg" data-keyval="shift">↑</button>');
+            }
+        } else {
+            if (options.shortBkspKey) {
+                keyboardRows[3].insertAdjacentHTML('beforeend', '<button class="keyboard-key keyboard-key-sm" data-keyval="backspace">⌫</button>');
+            } else {
+                keyboardRows[3].insertAdjacentHTML('beforeend', '<button class="keyboard-key keyboard-key-lg" data-keyval="backspace">⌫</button>');
+            }
+        }
 
         const newKeyboardRow = document.createElement('div');
         newKeyboardRow.className = 'keyboard-row';
@@ -904,44 +943,112 @@ function keyboard(passedOptions) {
     function sizeKeys() {
         const keyboardRows = document.querySelectorAll('.keyboard-row');
         const keyPadding = 2 * parseInt(getComputedStyle(document.querySelector('.keyboard-key')).marginRight.match(/[0-9]/), 10);
-        const maxKeyCount = 15;
+        const keyHeight = parseInt(getComputedStyle(keyboardRows[0].children[1]).height, 10)
+        const defaultMaxKeyCount = 13
+
+        let maxKeyCount = 1;
+        keyboardRows.forEach(row => {
+            const keyCount = row.children.length
+            if (keyCount > maxKeyCount) {
+                maxKeyCount = keyCount
+            }
+        })
 
         for (let prop in keyboardRows) {
             if ('object' !== typeof keyboardRows[prop]) {
                 continue
             }
-            let rowWidth, smallKeys, largeKeys, xlargeKeys
+            let rowWidth, smallKeys, largeKeys, xlargeKeys, specialKeys150, specialKeys190, specialKeys210
             try {
                 rowWidth = keyboardRows[prop].offsetWidth;
                 smallKeys = keyboardRows[prop].querySelectorAll('.keyboard-key-sm').length;
                 largeKeys = keyboardRows[prop].querySelectorAll('.keyboard-key-lg').length;
                 xlargeKeys = keyboardRows[prop].querySelectorAll('.keyboard-key-xl').length;
+                specialKeys150 = keyboardRows[prop].querySelectorAll('.keyboard-key-150').length;
+                specialKeys190 = keyboardRows[prop].querySelectorAll('.keyboard-key-190').length;
+                specialKeys210 = keyboardRows[prop].querySelectorAll('.keyboard-key-210').length;
             } catch (error) {
                 console.error(`MOK-project ERROR: ${error}`)
             }
-            const smallKeyWidth = (rowWidth - (maxKeyCount * keyPadding)) / maxKeyCount;
-            const largeKeyWidth = (rowWidth - ((smallKeys + largeKeys + xlargeKeys) * keyPadding) - (smallKeys * smallKeyWidth) - (xlargeKeys * (rowWidth / 3))) / largeKeys;
-            const xlargeKeyWidth = rowWidth / 3;
+
+            const specialKeys150Width = specialKeys150 * keyHeight * 1.5
+            const specialKeys190Width = specialKeys190 * keyHeight * 1.9
+            const specialKeys210Width = specialKeys210 * keyHeight * 2.1
+            const smallKeyWidth = (rowWidth - (maxKeyCount * keyPadding)) / maxKeyCount
+            // Large keys shall occupy all the unsused space to fit 100% row width.
+            let largeKeyWidth = rowWidth
+                - ((smallKeys + largeKeys + xlargeKeys + specialKeys150 + specialKeys190 + specialKeys210) * keyPadding)
+                - (smallKeys * smallKeyWidth)
+                - (specialKeys150 * specialKeys150Width)
+                - (specialKeys190 * specialKeys190Width)
+                - (specialKeys210 * specialKeys210Width)
+                - (xlargeKeys * (rowWidth / 3))
+            if (0 < largeKeyWidth) {
+                largeKeyWidth = largeKeyWidth / largeKeys
+            } else {
+                largeKeyWidth += smallKeyWidth
+            }
+            const xlargeKeyWidth = rowWidth / 3
+
+            let keySmToLgKeys = []
 
             let keyboardKeySm = keyboardRows[prop].querySelectorAll('.keyboard-key-sm')
-            for (let propSm in keyboardKeySm) {
+            for (let i = 0; i < keyboardKeySm.length; i++) {
                 try {
-                    keyboardKeySm[propSm].style.width = `${smallKeyWidth}px`;
+                    if (i >= (13 - largeKeys - xlargeKeys - specialKeys150 - specialKeys190 - specialKeys210)) {
+                        // sm-item #13 and above shall be adjusted to fit the row's width.
+                        keyboardKeySm[i].classList.remove('keyboard-key-sm')
+                        keyboardKeySm[i].classList.add('keyboard-key-lg')
+                        keySmToLgKeys.push(keyboardKeySm[i])
+                    } else {
+                        keyboardKeySm[i].style.width = `${smallKeyWidth}px`
+                    }
                 } catch (error) { }
-            };
+            }
             let keyboardKeyLg = keyboardRows[prop].querySelectorAll('.keyboard-key-lg')
             for (let propLg in keyboardKeyLg) {
                 try {
-                    keyboardKeyLg[propLg].style.width = `${largeKeyWidth}px`;
+                    keyboardKeyLg[propLg].style.width = `${largeKeyWidth}px`
                 } catch (error) { }
-            };
+            }
+            for (let propSmToLg in keySmToLgKeys) {
+                try {
+                    keySmToLgKeys[propSmToLg].style.width = `${largeKeyWidth}px`
+                } catch (error) { }
+            }
             let keyboardKeyXl = keyboardRows[prop].querySelectorAll('.keyboard-key-xl')
             for (let propXl in keyboardKeyXl) {
                 try {
-                    keyboardKeyXl[propXl].style.width = `${xlargeKeyWidth}px`;
+                    keyboardKeyXl[propXl].style.width = `${xlargeKeyWidth}px`
                 } catch (error) { }
-            };
-        };
+            }
+        }
+
+        // In case there are less buttons then in at least one other row and there are no large leys we need to
+        // center the content of the row.
+        let maxChildrenRow = { row: null, numberOfChildren: 0 }
+        keyboardRows.forEach(row => {
+            // Get all child elements of the current row
+            const children = Array.from(row.children)
+
+            // Get the number of child elements in this row
+            const numberOfChildren = children.length
+
+            if (maxChildrenRow.numberOfChildren < numberOfChildren) {
+                maxChildrenRow = { row: row, numberOfChildren: numberOfChildren }
+            }
+        })
+
+        keyboardRows.forEach(row => {
+            const children = Array.from(row.children)
+            const numberOfChildren = children.length
+            // Check if all children have the class 'keyboard-key-sm'
+            const allHaveClass = children.every(child => child.classList.contains('keyboard-key-sm'))
+            // Are there less buttons than in the row with the most buttons? So add some centering/invisible fake buttons.
+            if (allHaveClass && numberOfChildren < maxChildrenRow.numberOfChildren) {
+                row.style.justifyContent = 'center'
+            }
+        })
     }
 
 
