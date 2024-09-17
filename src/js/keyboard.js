@@ -1312,30 +1312,33 @@ function keyboard(passedOptions) {
     //*                   Submit keyboard data to form and close.                       *
     //***********************************************************************************
     function acceptData() {
-        if (inputAttributes.inputFilter !== '' && inputAttributes.inputFilter !== null) {
-            let regex = new RegExp(inputAttributes.inputFilter);
-            if (!regex.test(keyboardStreamField.value)) {
-                discardData()
-                return
+        setTimeout(() => {
+            try {
+                if (inputAttributes.inputFilter !== '' && inputAttributes.inputFilter !== null) {
+                    let regex = new RegExp(inputAttributes.inputFilter);
+                    if (!regex.test(keyboardStreamField.value)) {
+                        discardData()
+                        return
+                    }
+                }
+                if (focusedInputField.tagName === 'INPUT') {
+                    focusedInputField.value = keyboardStreamField.value;
+                } else {
+                    focusedInputField.innerHTML = keyboardStreamField.value;
+                }
+                keyboardStreamField.value = '';
+            } catch (error) {
+                console.log(`FIXME: focusedInputField seems to be undefined which it shouldn't at this point.`, error)
+                // FIXME: Maybe it's fixed due to "yielding" using setTimeout()..?
             }
-        }
-        try {
-            if (focusedInputField.tagName === 'INPUT') {
-                focusedInputField.value = keyboardStreamField.value;
-            } else {
-                focusedInputField.innerHTML = keyboardStreamField.value;
+            resetInputFieldTextColor()
+            clearKeyboardState();
+            keyboardOpen = false;
+            readKeyboardFile();
+            if (inputAttributes['onInput'] && typeof window[inputAttributes['onInput']] === 'function') {
+                window[inputAttributes['onInput']]();
             }
-        } catch (error) {
-            console.log(`FIXME: focusedInputField seems to be undefined which it shouldn't at this point.`, error)
-        }
-        keyboardStreamField.value = '';
-        resetInputFieldTextColor()
-        clearKeyboardState();
-        keyboardOpen = false;
-        readKeyboardFile();
-        if (inputAttributes['onInput'] && typeof window[inputAttributes['onInput']] === 'function') {
-            window[inputAttributes['onInput']]();
-        }
+        }, 1)
     }
 
     //***********************************************************************************
