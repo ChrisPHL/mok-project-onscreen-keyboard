@@ -716,7 +716,7 @@ function keyboard(passedOptions) {
     //***********************************************************************************
     //*            This function handles the main buildout of our keyboard.             *
     //***********************************************************************************
-    function materializeKeyboard(keyListString) {
+    async function materializeKeyboard(keyListString) {
         let keyList = keyListString.toString().split(',');
         let keyObject = [];
         let keyMapArray = new Array(47);
@@ -747,7 +747,7 @@ function keyboard(passedOptions) {
         setKeys('default');
         keyboardFillout();
         sizeKeys();
-        keyboardAttributes();
+        await keyboardAttributes();
         if (!keyboardOpen) {
             //*****If direct enter enabled, don't bother.*****
             if (!options.directEnter) {
@@ -1344,11 +1344,42 @@ function keyboard(passedOptions) {
     //***********************************************************************************
     //*                Provide some styling options for our keyboard.                   *
     //***********************************************************************************
-    function keyboardAttributes() {
-        let viewportWidth = window.innerWidth,
-            viewportHeight = window.innerHeight,
-            keyboardHeight = document.querySelector('.keyboard-wrapper').offsetHeight,
-            keyboardWidth = document.querySelector('.keyboard-wrapper').offsetWidth;
+    function getViewportAndKeyboardDimensions() {
+        return new Promise((resolve) => {
+            function fetchDimensions() {
+                let viewportWidth = window.innerWidth;
+                let viewportHeight = window.innerHeight;
+
+                let keyboardWrapper = document.querySelector('.keyboard-wrapper');
+                let keyboardHeight = keyboardWrapper ? keyboardWrapper.offsetHeight : 0;
+                let keyboardWidth = keyboardWrapper ? keyboardWrapper.offsetWidth : 0;
+
+                // Check if any value is still zero
+                if (
+                    viewportWidth === 0 ||
+                    viewportHeight === 0 ||
+                    keyboardHeight === 0 ||
+                    keyboardWidth === 0
+                ) {
+                    // Retry after a short delay
+                    setTimeout(fetchDimensions, 50);
+                } else {
+                    // All values are non-zero, resolve the Promise
+                    resolve({
+                        viewportWidth,
+                        viewportHeight,
+                        keyboardHeight,
+                        keyboardWidth
+                    });
+                }
+            }
+
+            fetchDimensions();
+        });
+    }
+    async function keyboardAttributes() {
+        const dimensions = await getViewportAndKeyboardDimensions();
+        console.log('Dimensions acquired:', dimensions);
 
         let keyboardKeys = document.querySelectorAll('.keyboard-key');
         for (prop in keyboardKeys) {
@@ -1386,12 +1417,12 @@ function keyboard(passedOptions) {
                 document.querySelector('.keyboard-wrapper').style.top = '20px';
                 break;
             case 'middle':
-                document.querySelector('.keyboard-wrapper').style.top = `${(viewportHeight - keyboardHeight) / 2}px`;
+                document.querySelector('.keyboard-wrapper').style.top = `${(dimensions.viewportHeight - dimensions.keyboardHeight) / 2}px`;
                 break;
             default:
                 document.querySelector('.keyboard-wrapper').style.bottom = '20px';
         }
-        document.querySelector('.keyboard-wrapper').style.left = `${(viewportWidth - keyboardWidth) / 2}px`;
+        document.querySelector('.keyboard-wrapper').style.left = `${(dimensions.viewportWidth - dimensions.keyboardWidth) / 2}px`;
     }
 
 
