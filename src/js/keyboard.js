@@ -461,18 +461,12 @@ function keyboard(passedOptions) {
         document.addEventListener('click', function (event) {
             if (event.target.classList.contains('keyboard-cancel-button')) {
                 discardData();
-                if (options.cancelKey && typeof options.cancelKey === 'function') {
-                    options.cancelKey();
-                }
             }
         });
 
         document.addEventListener('touch', function (event) {
             if (event.target.classList.contains('keyboard-cancel-button')) {
                 discardData();
-                if (options.cancelKey && typeof options.cancelKey === 'function') {
-                    options.cancelKey();
-                }
             }
         });
 
@@ -480,18 +474,12 @@ function keyboard(passedOptions) {
         document.addEventListener('click', function (event) {
             if (event.target.classList.contains('keyboard-accept-button')) {
                 acceptData();
-                if (options.acceptKey && typeof options.acceptKey === 'function') {
-                    options.acceptKey();
-                }
             }
         });
 
         document.addEventListener('touch', function (event) {
             if (event.target.classList.contains('keyboard-accept-button')) {
                 acceptData();
-                if (options.acceptKey && typeof options.acceptKey === 'function') {
-                    options.acceptKey();
-                }
             }
         });
 
@@ -547,6 +535,7 @@ function keyboard(passedOptions) {
                     }
                     break;
             }
+            checkInputFilter(keyboardStreamField.value)
         }
     }
 
@@ -1311,6 +1300,9 @@ function keyboard(passedOptions) {
         if (undefined !== keyboardStreamField) {
             keyboardStreamField.value = '';
         }
+        if (options.cancelKey && typeof options.cancelKey === 'function') {
+            options.cancelKey(focusedInputField);
+        }
         resetInputFieldTextColor()
         clearKeyboardState();
         keyboardOpen = false;
@@ -1344,6 +1336,9 @@ function keyboard(passedOptions) {
             } catch (error) {
                 console.log(`FIXME: focusedInputField seems to be undefined which it shouldn't at this point.`, error)
                 // FIXME: Maybe it's fixed due to "yielding" using setTimeout()..?
+            }
+            if (options.acceptKey && typeof options.acceptKey === 'function') {
+                options.acceptKey(focusedInputField);
             }
             resetInputFieldTextColor()
             clearKeyboardState();
