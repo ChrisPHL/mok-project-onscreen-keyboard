@@ -250,7 +250,8 @@ function keyboard(passedOptions) {
         cancelKeyWriting = 'Cancel',
         acceptKeyIcon = undefined,
         cancelKeyIcon = undefined,
-        acceptKey = ''
+        acceptKey = '',
+        cancelKey = ''
     }) => ({
         acceptColor,
         acceptTextColor,
@@ -297,7 +298,8 @@ function keyboard(passedOptions) {
         cancelKeyWriting,
         acceptKeyIcon,
         cancelKeyIcon,
-        acceptKey
+        acceptKey,
+        cancelKey
     });
 
     const options = initOptions(passedOptions);
@@ -459,12 +461,18 @@ function keyboard(passedOptions) {
         document.addEventListener('click', function (event) {
             if (event.target.classList.contains('keyboard-cancel-button')) {
                 discardData();
+                if (options.cancelKey && typeof options.cancelKey === 'function') {
+                    options.cancelKey();
+                }
             }
         });
 
         document.addEventListener('touch', function (event) {
             if (event.target.classList.contains('keyboard-cancel-button')) {
                 discardData();
+                if (options.cancelKey && typeof options.cancelKey === 'function') {
+                    options.cancelKey();
+                }
             }
         });
 
@@ -472,12 +480,18 @@ function keyboard(passedOptions) {
         document.addEventListener('click', function (event) {
             if (event.target.classList.contains('keyboard-accept-button')) {
                 acceptData();
+                if (options.acceptKey && typeof options.acceptKey === 'function') {
+                    options.acceptKey();
+                }
             }
         });
 
         document.addEventListener('touch', function (event) {
             if (event.target.classList.contains('keyboard-accept-button')) {
                 acceptData();
+                if (options.acceptKey && typeof options.acceptKey === 'function') {
+                    options.acceptKey();
+                }
             }
         });
 
