@@ -535,7 +535,9 @@ function keyboard(passedOptions) {
                     }
                     break;
             }
-            checkInputFilter(keyboardStreamField.value)
+            if (keyboardStreamField) {
+                checkInputFilter(keyboardStreamField.value)
+            }
         }
     }
 
