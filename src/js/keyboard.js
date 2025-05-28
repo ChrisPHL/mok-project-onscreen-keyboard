@@ -541,9 +541,6 @@ function keyboard(passedOptions) {
         }
     }
 
-    document.addEventListener('keypress', hardwareKeypress);
-
-
     //***********************************************************************************
     //*         Read our keyboard file and parse information into usable tables         *
     //***********************************************************************************
