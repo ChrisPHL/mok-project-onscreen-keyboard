@@ -535,9 +535,11 @@ function keyboard(passedOptions) {
                     }
                     break;
             }
-            if (keyboardStreamField) {
-                checkInputFilter(keyboardStreamField.value)
-            }
+            setImmediate(() => {
+                if (keyboardStreamField) {
+                    checkInputFilter(keyboardStreamField.value)
+                }
+            })
         }
     }
 
