@@ -1284,7 +1284,7 @@ function keyboard(passedOptions) {
                 }
                 keyboardStreamField.style.color = options.cancelColor
                 acceptKey.disabled = true
-                acceptKey.style.backgroundColor = 'lightgrey'
+                acceptKey.style.setProperty('background-color', 'lightgrey', 'important')
             }
         }
     }
